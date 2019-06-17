@@ -84,7 +84,7 @@ function checkForUpdates()
     	if versionIsNewer(version_response.text) then
     		log("Starting script update...")
     		--get and apply the lua
-    		log("   ...fetching xml and lua version "..t_ver)
+    		log("   ...fetching xml and lua version "..version_response.text)
     		local lua_loaded = false
     		WebRequest.get(updater.url_lua, function(lua_response)
 				self.setLuaScript(lua_response.text)
