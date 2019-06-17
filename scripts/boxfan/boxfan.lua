@@ -24,33 +24,8 @@ function onSave()
 		return false
 	end
 end
-
---
--- self updater
---
-
 function checkForUpdates()
 	--simple script to check for updates to this assets lua or xml code
-	--change these settings
-	local version = fan.version
-	local repo    = "https://github.com/stom66/tts-map-kit/tree/master/scripts"
-	local asset   = "boxfan"
-
-	local url_version = repo..asset.."/version"
-	local url_lua = repo..asset.."/"..asset..".lua"
-	local url_xml = repo..asset.."/"..asset..".xml"
-
-	local function isNewerThan(target_version)
-		local t_date = string.match(target_version, "%d+")
-		local c_date = string.match(version, "%d+")
-		local t_rev = string.match("%a+")
-		local c_rev = string.match("%a+")
-
-		log("Current version: "..c_date.." - "..c_rev)
-		log("Target version: "..t_date.." - "..t_rev)
-	end
-
-	--work out params
     WebRequest.get(url, function(response) 
     	log(response)
     	if response.some_flag then
