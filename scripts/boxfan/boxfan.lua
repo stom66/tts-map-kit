@@ -4,7 +4,7 @@ function onLoad(save_data)
 		max     = 8,
 		inc     = 0.04,
 		running = false,
-		version = "20190617i"
+		version = "20190617j"
 	}
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
