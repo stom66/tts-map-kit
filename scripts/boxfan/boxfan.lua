@@ -4,7 +4,7 @@ function onLoad(save_data)
 		max     = 8,
 		inc     = 0.04,
 		running = false,
-		version = "20190617f"
+		version = "20190617g"
 	}
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
@@ -50,7 +50,7 @@ function checkForUpdates()
 		
 		--check for a straight match
 		if t_ver==c_ver then 
-			log("Asset "..name.." is running the latest script: "..t_ver)
+			log("Asset "..name.." is up-to-date: "..t_ver)
 			return false
 		end
 
@@ -82,24 +82,26 @@ function checkForUpdates()
 	--the lua and xml before reloading the object
     WebRequest.get(updater.url_version, function(version_response)
     	if versionIsNewer(version_response.text) then
+    		log("Starting script update...")
     		--get and apply the lua
-    		log("Fetching xml and lua version "..t)
+    		log("   ...fetching xml and lua version "..t)
     		local lua_loaded = false
     		WebRequest.get(updater.url_lua, function(lua_response)
 				self.setLuaScript(lua_response.text)
-    			log("...loaded lua from "..lua_response.url)
+    			log("   ...loaded lua from "..lua_response.url)
 				lua_loaded = true
     		end)
     		--get and apply the xml
     		local xml_loaded = false
     		WebRequest.get(updater.url_xml, function(xml_response)
     			self.UI.setXml(xml_response.text)
-    			log("...loaded xml from "..xml_response.url)
+    			log("   ...loaded xml from "..xml_response.url)
     			xml_loaded = true
     		end)
     		--wait for both to complete before reloading
     		Wait.condition(
     			function() 
+    				log("   ...updating asset "..updater.asset.." complete!")
     				self.reload() 
     			end,
     			function() 
