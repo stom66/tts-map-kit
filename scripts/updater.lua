@@ -36,14 +36,15 @@ function checkForUpdates(asset, version)
 	local updater = {
 		asset   = asset,
 		version = version,
-		repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/scripts/",
+		repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/",
 		timeout = 20
 	}
 
 	local url_s         = "?"..math.floor(os.time())
-	updater.url_version = updater.repo..updater.asset.."/version"..url_s
-	updater.url_lua     = updater.repo..updater.asset.."/"..updater.asset..".lua"..url_s
-	updater.url_xml     = updater.repo..updater.asset.."/"..updater.asset..".xml"..url_s
+	updater.url_version = updater.repo.."scripts/"..updater.asset.."/version"..url_s
+	updater.url_lua     = updater.repo.."scripts/"..updater.asset.."/"..updater.asset..".lua"..url_s
+	updater.url_xml     = updater.repo.."scripts/"..updater.asset.."/"..updater.asset..".xml"..url_s
+	updater.url_json    = updater.repo.."assets/"..updater.asset.."/custom.json"..url_s
 
 	local function versionIsNewer(t_ver)
 		local c_ver = updater.version
@@ -85,21 +86,53 @@ function checkForUpdates(asset, version)
 	WebRequest.get(updater.url_version, function(version_response)
 		if versionIsNewer(version_response.text) then
 			log("Starting script update...")
-			--get and apply the lua
 			log("   ...fetching xml and lua version "..version_response.text)
+
+
+			--get and apply the lua
 			local lua_loaded = false
 			WebRequest.get(updater.url_lua, function(lua_response)
-				self.setLuaScript(lua_response.text)
-				log("   ...loaded lua from "..lua_response.url)
+				if lua_response.text and lua_response.text ~= "" then
+					log("   ...loaded lua from "..lua_response.url)
+					self.setLuaScript(lua_response.text)
+				else
+					log("   ...no lua found at "..lua_response.url)
+				end
 				lua_loaded = true
 			end)
+
 			--get and apply the xml
 			local xml_loaded = false
 			WebRequest.get(updater.url_xml, function(xml_response)
-				self.UI.setXml(xml_response.text)
-				log("   ...loaded xml from "..xml_response.url)
+				if xml_response.text and xml_response.text ~= "" then
+					log("   ...loaded xml from "..xml_response.url)
+					self.UI.setXml(xml_response.text)
+				else
+					log("   ...no xml found at "..xml_response.url)
+				end
 				xml_loaded = true
 			end)
+
+			--get and apply the json
+			local json_loaded = false
+			WebRequest.get(updater.url_json, function(json_response)
+				if json_response.text and json_response.text ~= "" then
+					log("   ...loaded json from "..json_response.url)
+					local json = JSON.decode(json_response.text)
+					log("JSON---")
+					log(json)
+					log("-----")
+					--now
+					--do
+					--custom
+					--properties
+					--updates
+				else
+					log("   ...no json found at "..json_response.url)
+				end
+				json_loaded = true
+			end)
+
 			--wait for both to complete before reloading
 			Wait.condition(
 				function() 
@@ -107,7 +140,7 @@ function checkForUpdates(asset, version)
 					self.reload() 
 				end,
 				function() 
-					return (lua_loaded and xml_loaded) 
+					return (lua_loaded and xml_loaded and json_loaded) 
 				end,
 				timeout, --set above
 				function()
