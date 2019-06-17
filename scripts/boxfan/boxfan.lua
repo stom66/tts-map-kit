@@ -3,7 +3,8 @@ function onLoad(save_data)
 		speed   = 3, -- 3*inc
 		max     = 8,
 		inc     = 0.04,
-		running = false
+		running = false,
+		version = "20190617a"
 	}
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
@@ -23,11 +24,33 @@ function onSave()
 		return false
 	end
 end
+
+--
+-- self updater
+--
+
 function checkForUpdates()
 	--simple script to check for updates to this assets lua or xml code
-	local repo = "https://api.bitbucket.org/2.0/repositories/st0m/tts-map-kit/"
-	local asset_name = "boxfan"
-	local url = ""
+	--change these settings
+	local version = fan.version
+	local repo    = "https://github.com/stom66/tts-map-kit/tree/master/scripts"
+	local asset   = "boxfan"
+
+	local url_version = repo..asset.."/version"
+	local url_lua = repo..asset.."/"..asset..".lua"
+	local url_xml = repo..asset.."/"..asset..".xml"
+
+	local function isNewerThan(target_version)
+		local t_date = string.match(target_version, "%d+")
+		local c_date = string.match(version, "%d+")
+		local t_rev = string.match("%a+")
+		local c_rev = string.match("%a+")
+
+		log("Current version: "..c_date.." - "..c_rev)
+		log("Target version: "..t_date.." - "..t_rev)
+	end
+
+	--work out params
     WebRequest.get(url, function(response) 
     	log(response)
     	if response.some_flag then
