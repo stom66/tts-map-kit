@@ -1,5 +1,5 @@
 --
--- This is the first draft of the self-updater script.
+--	version 0.2
 --
 -- This script was written by stom. You are free to use it for your own 
 -- mods if you wish.
@@ -37,13 +37,13 @@ function checkForUpdates(asset, version)
 		asset   = asset,
 		version = version,
 		repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/scripts/",
-		timeout = 20,
-		url_s   = "?"..math.floor(os.time())
+		timeout = 20
 	}
 
+	local url_s         = "?"..math.floor(os.time())
 	updater.url_version = updater.repo..updater.asset.."/version"..url_s
-	updater.url_lua = updater.repo..updater.asset.."/"..updater.asset..".lua"..url_s
-	updater.url_xml = updater.repo..updater.asset.."/"..updater.asset..".xml"..url_s
+	updater.url_lua     = updater.repo..updater.asset.."/"..updater.asset..".lua"..url_s
+	updater.url_xml     = updater.repo..updater.asset.."/"..updater.asset..".xml"..url_s
 
 	local function versionIsNewer(t_ver)
 		local c_ver = updater.version
