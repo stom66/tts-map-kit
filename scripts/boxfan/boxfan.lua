@@ -4,7 +4,7 @@ function onLoad(save_data)
 		max     = 8,
 		inc     = 0.04,
 		running = false,
-		version = "20190617h"
+		version = "20190617i"
 	}
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
@@ -84,7 +84,7 @@ function checkForUpdates()
     	if versionIsNewer(version_response.text) then
     		log("Starting script update...")
     		--get and apply the lua
-    		log("   ...fetching xml and lua version "..t)
+    		log("   ...fetching xml and lua version "..t_ver)
     		local lua_loaded = false
     		WebRequest.get(updater.url_lua, function(lua_response)
 				self.setLuaScript(lua_response.text)
