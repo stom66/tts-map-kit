@@ -4,7 +4,7 @@ function onLoad(save_data)
 		max     = 8,
 		inc     = 0.04,
 		running = false,
-		version = "20190617j"
+		version = "20190617k"
 	}
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
@@ -14,7 +14,7 @@ function onLoad(save_data)
 		Wait.frames(toggleFan, 1)
 		Wait.frames(|| setSpeed(speed), 2)
 	end
-	checkForUpdates()
+	checkForUpdates("boxfan", fan.version)
 end
 function onSave()
 	if fan.running then
@@ -28,20 +28,19 @@ end
 --
 -- self updater
 --
-
-function checkForUpdates()
+function checkForUpdates(asset, version)
 	--simple script to check for updates to this assets lua or xml code
-	--change these settings
 	local updater = {
-		asset   = "boxfan",
-		version = fan.version,
+		asset   = asset,
+		version = version,
 		repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/scripts/",
 		timeout = 20,
+		url_s   = "?"..math.floor(os.time())
 	}
 
-	updater.url_version = updater.repo..updater.asset.."/version?"..os.time()
-	updater.url_lua = updater.repo..updater.asset.."/"..updater.asset..".lua?"..os.time()
-	updater.url_xml = updater.repo..updater.asset.."/"..updater.asset..".xml?"..os.time()
+	updater.url_version = updater.repo..updater.asset.."/version"..url_s
+	updater.url_lua = updater.repo..updater.asset.."/"..updater.asset..".lua"..url_s
+	updater.url_xml = updater.repo..updater.asset.."/"..updater.asset..".xml"..url_s
 
 	local function versionIsNewer(t_ver)
 		local c_ver = updater.version
@@ -80,40 +79,40 @@ function checkForUpdates()
 	--poll the repo and check the version file to see if we need to update
 	--if there's a version mismatch check if we're behind and fetch and apply
 	--the lua and xml before reloading the object
-    WebRequest.get(updater.url_version, function(version_response)
-    	if versionIsNewer(version_response.text) then
-    		log("Starting script update...")
-    		--get and apply the lua
-    		log("   ...fetching xml and lua version "..version_response.text)
-    		local lua_loaded = false
-    		WebRequest.get(updater.url_lua, function(lua_response)
+	WebRequest.get(updater.url_version, function(version_response)
+		if versionIsNewer(version_response.text) then
+			log("Starting script update...")
+			--get and apply the lua
+			log("   ...fetching xml and lua version "..version_response.text)
+			local lua_loaded = false
+			WebRequest.get(updater.url_lua, function(lua_response)
 				self.setLuaScript(lua_response.text)
-    			log("   ...loaded lua from "..lua_response.url)
+				log("   ...loaded lua from "..lua_response.url)
 				lua_loaded = true
-    		end)
-    		--get and apply the xml
-    		local xml_loaded = false
-    		WebRequest.get(updater.url_xml, function(xml_response)
-    			self.UI.setXml(xml_response.text)
-    			log("   ...loaded xml from "..xml_response.url)
-    			xml_loaded = true
-    		end)
-    		--wait for both to complete before reloading
-    		Wait.condition(
-    			function() 
-    				log("   ...updating asset "..updater.asset.." complete!")
-    				self.reload() 
-    			end,
-    			function() 
-    				return (lua_loaded and xml_loaded) 
-    			end,
-    			timeout, --set above
-    			function()
-    				log("Unable to update asset "..asset..", update timed out after "..timeout.." seconds")
-    			end
-    		)
-    	end
-    end)
+			end)
+			--get and apply the xml
+			local xml_loaded = false
+			WebRequest.get(updater.url_xml, function(xml_response)
+				self.UI.setXml(xml_response.text)
+				log("   ...loaded xml from "..xml_response.url)
+				xml_loaded = true
+			end)
+			--wait for both to complete before reloading
+			Wait.condition(
+				function() 
+					log("   ...updating asset "..updater.asset.." complete!")
+					self.reload() 
+				end,
+				function() 
+					return (lua_loaded and xml_loaded) 
+				end,
+				timeout, --set above
+				function()
+					log("Unable to update asset "..asset..", update timed out after "..timeout.." seconds")
+				end
+			)
+		end
+	end)
 end
 
 
