@@ -1,0 +1,30 @@
+<Defaults>
+	<Panel scale = "0.5 0.5 0.5"/>
+</Defaults>
+
+<Panel
+	width = "120"
+	height = "80"
+	position = "0 20 -212">
+	<Button 
+		color="red" 
+		id="btn_power" 
+		onClick="toggleFan()">
+	</Button>
+</Panel>
+
+<Panel
+	width = "360"
+	height = "60"
+	position = "0 -20 -202">
+	<HorizontalLayout>
+		<Button color="#1A3547" id="power_1" onClick="xml_setSpeed(1)"></Button>
+		<Button color="#1A3547" id="power_2" onClick="xml_setSpeed(2)"></Button>
+		<Button color="#1A3547" id="power_3" onClick="xml_setSpeed(3)"></Button>
+		<Button color="#1A3547" id="power_4" onClick="xml_setSpeed(4)"></Button>
+		<Button color="#1A3547" id="power_5" onClick="xml_setSpeed(5)"></Button>
+		<Button color="#1A3547" id="power_6" onClick="xml_setSpeed(6)"></Button>
+		<Button color="#1A3547" id="power_7" onClick="xml_setSpeed(7)"></Button>
+		<Button color="#1A3547" id="power_8" onClick="xml_setSpeed(8)"></Button>
+	</HorizontalLayout>
+</Panel>
