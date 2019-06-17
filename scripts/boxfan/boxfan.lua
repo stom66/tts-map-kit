@@ -13,6 +13,7 @@ function onLoad(save_data)
 		Wait.frames(toggleFan, 1)
 		Wait.frames(|| setSpeed(speed), 2)
 	end
+	checkForUpdates()
 end
 function onSave()
 	if fan.running then
@@ -21,6 +22,24 @@ function onSave()
 	else 
 		return false
 	end
+end
+function checkForUpdates()
+	--simple script to check for updates to this assets lua or xml code
+	local repo = "https://api.bitbucket.org/2.0/repositories/st0m/tts-map-kit/"
+	local asset_name = "boxfan"
+	local url = ""
+    WebRequest.get(url, function(response) 
+    	log(response)
+    	if response.some_flag then
+    		--update ourself
+    		local lua = ""
+    		local xml = ""
+    		self.setLuaScript(lua)
+    		self.setXmlTable(xml)
+    		self.reload()
+    		log(asset_name.." has been updated from the repository: "..repo)
+    	end
+    end)
 end
 
 function toggleFan()
