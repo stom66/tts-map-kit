@@ -4,7 +4,7 @@ function onLoad(save_data)
 		max     = 8,
 		inc     = 0.04,
 		running = false,
-		version = "20190617e"
+		version = "20190617f"
 	}
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
@@ -32,73 +32,80 @@ end
 function checkForUpdates()
 	--simple script to check for updates to this assets lua or xml code
 	--change these settings
-	local version = fan.version
-	local repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/scripts/"
-	local asset   = "boxfan"
-	local timeout = 20
+	local updater = {
+		asset   = "boxfan",
+		version = fan.version,
+		repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/scripts/",
+		timeout = 20,
+	}
 
-	local url_version = repo..asset.."/version?"..os.time()
-	local url_lua = repo..asset.."/"..asset..".lua?"..os.time()
-	local url_xml = repo..asset.."/"..asset..".xml?"..os.time()
+	updater.url_version = updater.repo..updater.asset.."/version?"..os.time()
+	updater.url_lua = updater.repo..updater.asset.."/"..updater.asset..".lua?"..os.time()
+	updater.url_xml = updater.repo..updater.asset.."/"..updater.asset..".xml?"..os.time()
 
-	local function versionIsNewer(t)
-		--check if [t]arget version is newer than current [version]
-		--log("Asset "..asset.." is currently running script version "..version)
-		--log("Asset "..asset.." latest script version is "..t)
+	local function versionIsNewer(t_ver)
+		local c_ver = updater.version
+		local name = updater.asset
+		--check if target version [t_ver] is newer than the current [c_ver]
 		
 		--check for a straight match
-		if t==version then 
-			log("Asset "..asset.." is running the latest script: "..version)
+		if t_ver==c_ver then 
+			log("Asset "..name.." is running the latest script: "..t_ver)
 			return false
 		end
 
 		--check for newer date
-		local t_date = string.match(t, "%d+")
-		local c_date = string.match(version, "%d+")
+		local t_date = string.match(t_ver, "%d+")
+		local c_date = string.match(c_ver, "%d+")
 		if t_date > c_date then 
-			log("Asset "..asset.." needs to be updated")
+			log("Asset "..name.." needs to be updated from "..c_ver.." to "..t_ver)
 			return true 
 		end
 
 		--check for same date but newer subversion
 		if t_date == c_date then
-			local t_rev = string.match(t, "%a+") or 0
-			local c_rev = string.match(version, "%a+") or 0
+			local t_rev = string.match(t_ver, "%a+") or 0
+			local c_rev = string.match(c_ver, "%a+") or 0
 			if string.byte(t_rev) > string.byte(c_rev) then 
-				log("Asset "..asset.." needs to be patched")
+				log("Asset "..name.." needs to be patched from "..c_ver.." to "..t_ver)
 				return true 
 			end
 		end
 
 		--local copy is higher than remote copy
-		log("!#! Warning! your local asset "..asset.." has components that a higher version that those on the github")
+		log("!#! Warning! asset "..name.." is a higher version than the repo")
 		return false
 	end
 
 	--poll the repo and check the version file to see if we need to update
 	--if there's a version mismatch check if we're behind and fetch and apply
 	--the lua and xml before reloading the object
-    WebRequest.get(url_version, function(version_response)
+    WebRequest.get(updater.url_version, function(version_response)
     	if versionIsNewer(version_response.text) then
     		--get and apply the lua
+    		log("Fetching xml and lua version "..t)
     		local lua_loaded = false
-    		WebRequest.get(url_lua, function(lua_response)
+    		WebRequest.get(updater.url_lua, function(lua_response)
 				self.setLuaScript(lua_response.text)
-    			log("Loading lua from repo complete")
+    			log("...loaded lua from "..lua_response.url)
 				lua_loaded = true
     		end)
     		--get and apply the xml
     		local xml_loaded = false
-    		WebRequest.get(url_xml, function(xml_response)
+    		WebRequest.get(updater.url_xml, function(xml_response)
     			self.UI.setXml(xml_response.text)
-    			log("Loading xml from repo complete")
+    			log("...loaded xml from "..xml_response.url)
     			xml_loaded = true
     		end)
     		--wait for both to complete before reloading
     		Wait.condition(
-    			function() self.reload() end,
-    			function() return (lua_loaded and xml_loaded) end,
-    			timeout, --seconds wait limit
+    			function() 
+    				self.reload() 
+    			end,
+    			function() 
+    				return (lua_loaded and xml_loaded) 
+    			end,
+    			timeout, --set above
     			function()
     				log("Unable to update asset "..asset..", update timed out after "..timeout.." seconds")
     			end
