@@ -4,7 +4,7 @@ function onLoad(save_data)
 		max     = 8,
 		inc     = 0.04,
 		running = false,
-		version = "20190617a"
+		version = "20190617c"
 	}
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
@@ -24,19 +24,96 @@ function onSave()
 		return false
 	end
 end
+
+--
+-- self updater
+--
+
 function checkForUpdates()
 	--simple script to check for updates to this assets lua or xml code
-    WebRequest.get(url, function(response) 
-    	log(response)
-    	if response.some_flag then
-    		--update ourself
-    		local lua = ""
-    		local xml = ""
-    		self.setLuaScript(lua)
-    		self.setXmlTable(xml)
-    		self.reload()
-    		log(asset_name.." has been updated from the repository: "..repo)
+	--change these settings
+	local version = fan.version
+	local repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/scripts/"
+	local asset   = "boxfan"
+
+	local url_version = repo..asset.."/version"
+	local url_lua = repo..asset.."/"..asset..".lua"
+	local url_xml = repo..asset.."/"..asset..".xml"
+
+	local function isNewerThan(t)
+		--check if [t]arget version is newer than current [version]
+		
+		--check for a straight match
+		if t==version then 
+			log("Asset "..asset.." is running the latest script")
+			return false
+		end
+
+		--if we didn't get a match, check that the remote version isn't actually older
+		--so as to avoid overwrites during development
+
+		local t_date = string.match(t, "%d+")
+		local c_date = string.match(version, "%d+")
+
+		--check for newer date
+		if t_date > c_date then 
+			log("Asset "..asset.." needs to be updated")
+			return true 
+		end
+
+		--check for same date but newer subversion
+		if t_date == c_date then
+			local t_rev = string.match(t, "%a+") or 0
+			local c_rev = string.match(version, "%a+") or 0
+			if string.byte(t_rev) > string.byte(c_rev) then 
+				log("Asset "..asset.." needs to be patched")
+				return true 
+			end
+		end
+		--local copy is higher than remote copy
+		log("!#! Warning! your local asset "..asset.." has components that a higher version that those on the github")
+		return false
+	end
+
+	--work out params
+    WebRequest.get(url_version, function(version_response) 
+    	if isNewerThan(version_response.text) then
+    		local lua_loaded, xml_loaded = false, false
+    		WebRequest.get(url_lua, function(lua_response)
+    			lua_loaded = lua_response.text
+    		end)
+    		WebRequest.get(url_xml, function(xml_response)
+    			xml_loaded = xml_response.text
+    		end)
+    		Wait.condition(
+    			function()
+    				self.setLuaScript(lua_loaded)
+    				self.setXml(xml_loaded)
+    				log("Asset "..asset.." scripts have been updated to version "..version_response.text..", triggering asset reload")
+    				self.reload()
+    			end,
+    			function()
+    				if lua_loaded ~= false and xml_loaded ~= false then
+    					return true
+    				else
+    					return false
+    				end
+    			end,
+    			20, --seconds wait limit
+    			function()
+    				log("Unable to update asset "..asset..", update timed out after 20 seconds")
+    			end
+    		)
     	end
+    	--if response.some_flag then
+    	--	--update ourself
+    	--	local lua = ""
+    	--	local xml = ""
+    	--	self.setLuaScript(lua)
+    	--	self.setXmlTable(xml)
+    	--	self.reload()
+    	--	log(asset_name.." has been updated from the repository: "..repo)
+    	--end
     end)
 end
 
