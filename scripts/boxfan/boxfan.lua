@@ -4,7 +4,7 @@ function onLoad(save_data)
 		max     = 8,
 		inc     = 0.04,
 		running = false,
-		version = "20190617k"
+		version = "20190617l"
 	}
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
@@ -24,6 +24,59 @@ function onSave()
 		return false
 	end
 end
+function toggleFan()
+	log("Toggling fan: "..tostring(not fan.running))
+	if fan.running then
+		self.AssetBundle.playTriggerEffect(1)
+	else
+		self.AssetBundle.playTriggerEffect(0)
+	end
+	fan.running = not fan.running
+	Wait.frames(updateBtnColors, 1)
+end
+
+function setSpeed(val)
+	log("changeSpeed("..val..")")
+	fan.speed = tonumber(val)
+	local actual_strength = fan.speed*fan.inc
+	local anim_speed = 0.5 + (fan.speed*0.15)
+	
+	log("Setting fan speed to "..fan.speed.." ("..actual_strength.."), animation speed: "..anim_speed)	
+	self.getChildren()[1].getChildren()[7].getComponents()[2].set("windMain", actual_strength)
+	self.getChildren()[1].getComponents()[2].set("speed", anim_speed)
+	updateBtnColors()
+end
+	function xml_setSpeed(player, val)
+		--called by XML UI
+		setSpeed(val)
+	end
+	function call_setSpeed(t)
+		--called by other object scripts
+		if type(t[1])=="number" then
+			setSpeed(t[1])
+		else
+			return false
+		end
+	end
+	
+function updateBtnColors()
+	if fan.running then
+		self.UI.setAttribute("btn_power", "color", "green")
+	else
+		self.UI.setAttribute("btn_power", "color", "red")
+	end
+	for i=1,fan.max do
+		if not fan.running then
+			self.UI.setAttribute("power_"..i, "color", "#1A3547")
+		else
+			if i > fan.speed then
+				self.UI.setAttribute("power_"..i, "color", "#6e8b9f")
+			else
+				self.UI.setAttribute("power_"..i, "color", "#254f6b")
+			end
+		end
+	end
+end
 
 --
 -- self updater
@@ -34,13 +87,13 @@ function checkForUpdates(asset, version)
 		asset   = asset,
 		version = version,
 		repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/scripts/",
-		timeout = 20,
-		url_s   = "?"..math.floor(os.time())
+		timeout = 20
 	}
 
+	local url_s         = "?"..math.floor(os.time())
 	updater.url_version = updater.repo..updater.asset.."/version"..url_s
-	updater.url_lua = updater.repo..updater.asset.."/"..updater.asset..".lua"..url_s
-	updater.url_xml = updater.repo..updater.asset.."/"..updater.asset..".xml"..url_s
+	updater.url_lua     = updater.repo..updater.asset.."/"..updater.asset..".lua"..url_s
+	updater.url_xml     = updater.repo..updater.asset.."/"..updater.asset..".xml"..url_s
 
 	local function versionIsNewer(t_ver)
 		local c_ver = updater.version
@@ -113,59 +166,4 @@ function checkForUpdates(asset, version)
 			)
 		end
 	end)
-end
-
-
-
-function toggleFan()
-	log("Toggling fan: "..tostring(not fan.running))
-	if fan.running then
-		self.AssetBundle.playTriggerEffect(1)
-	else
-		self.AssetBundle.playTriggerEffect(0)
-	end
-	fan.running = not fan.running
-	Wait.frames(updateBtnColors, 1)
-end
-
-function setSpeed(val)
-	log("changeSpeed("..val..")")
-	fan.speed = tonumber(val)
-	local actual_strength = fan.speed*fan.inc
-	local anim_speed = 0.5 + (fan.speed*0.15)
-	
-	log("Setting fan speed to "..fan.speed.." ("..actual_strength.."), animation speed: "..anim_speed)	
-	self.getChildren()[1].getChildren()[7].getComponents()[2].set("windMain", actual_strength)
-	self.getChildren()[1].getComponents()[2].set("speed", anim_speed)
-	updateBtnColors()
-end
-	function xml_setSpeed(player, val)
-		--called by XML UI
-		setSpeed(val)
-	end
-	function call_setSpeed(t)
-		--called by other object scripts
-		if type(t[1])=="number" then
-			setSpeed(t[1])
-		else
-			return false
-		end
-	end
-function updateBtnColors()
-	if fan.running then
-		self.UI.setAttribute("btn_power", "color", "green")
-	else
-		self.UI.setAttribute("btn_power", "color", "red")
-	end
-	for i=1,fan.max do
-		if not fan.running then
-			self.UI.setAttribute("power_"..i, "color", "#1A3547")
-		else
-			if i > fan.speed then
-				self.UI.setAttribute("power_"..i, "color", "#6e8b9f")
-			else
-				self.UI.setAttribute("power_"..i, "color", "#254f6b")
-			end
-		end
-	end
 end
