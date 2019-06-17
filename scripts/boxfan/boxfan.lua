@@ -4,7 +4,7 @@ function onLoad(save_data)
 		max     = 8,
 		inc     = 0.04,
 		running = false,
-		version = "20190617d"
+		version = "20190617e"
 	}
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
@@ -75,7 +75,9 @@ function checkForUpdates()
 		return false
 	end
 
-	--work out params
+	--poll the repo and check the version file to see if we need to update
+	--if there's a version mismatch check if we're behind and fetch and apply
+	--the lua and xml before reloading the object
     WebRequest.get(url_version, function(version_response)
     	if versionIsNewer(version_response.text) then
     		--get and apply the lua
