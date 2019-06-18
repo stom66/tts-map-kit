@@ -38,14 +38,30 @@ function toggleFan()
 end
 
 function setSpeed(val)
+	local function abort()
+		log("Fan is broken! Reloading")
+		self.reload()
+		return false
+	end
+
 	log("changeSpeed("..val..")")
 	fan.speed = tonumber(val)
 	local actual_strength = fan.speed*fan.inc
 	local anim_speed = 0.5 + (fan.speed*0.15)
+
+	if not self.getChildren() then
+		return abort()
+	end
+	local windZone = self.getChildren()[1].getChildren()[7].getComponents()[2]
+	local animSpeed = self.getChildren()[1].getComponents()[2]
+
+	if not windZone or not animSpeed then
+		return abort()
+	end
 	
 	log("Setting fan speed to "..fan.speed.." ("..actual_strength.."), animation speed: "..anim_speed)	
-	self.getChildren()[1].getChildren()[7].getComponents()[2].set("windMain", actual_strength)
-	self.getChildren()[1].getComponents()[2].set("speed", anim_speed)
+	windZone.set("windMain", actual_strength)
+	animSpeed.set("speed", anim_speed)
 	updateBtnColors()
 end
 	function xml_setSpeed(player, val)
@@ -79,6 +95,7 @@ function updateBtnColors()
 		end
 	end
 end
+
 
 --@@include updater.lua
 function checkForUpdates(asset, current_version, repo_url, timeout)
