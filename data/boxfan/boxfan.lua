@@ -143,7 +143,7 @@ function checkForUpdates(asset, version)
 			--get and apply the lua
 			local lua_loaded = false
 			WebRequest.get(updater.url_lua, function(lua_response)
-				if lua_response.text and lua_response.text ~= "" then
+				if lua_response.text and lua_response.text ~= "" and lua_response.text ~= "404: Not Found" then
 					log("   ...loaded lua from "..lua_response.url)
 					self.setLuaScript(lua_response.text)
 				else
@@ -155,7 +155,7 @@ function checkForUpdates(asset, version)
 			--get and apply the xml
 			local xml_loaded = false
 			WebRequest.get(updater.url_xml, function(xml_response)
-				if xml_response.text and xml_response.text ~= "" then
+				if xml_response.text and xml_response.text ~= "" and xml_response.text ~= "404: Not Found" then
 					log("   ...loaded xml from "..xml_response.url)
 					self.UI.setXml(xml_response.text)
 				else
@@ -167,7 +167,7 @@ function checkForUpdates(asset, version)
 			--get and apply the json
 			local json_loaded = false
 			WebRequest.get(updater.url_json, function(json_response)
-				if json_response.text and json_response.text ~= "" then
+				if json_response.text and json_response.text ~= "" and json_response.text ~= "404: Not Found" then
 					log("   ...loaded json from "..json_response.url)
 					local json = JSON.decode(json_response.text)
 					log("JSON---")
@@ -200,5 +200,5 @@ function checkForUpdates(asset, version)
 			)
 		end
 	end)
-en
+end
 --@@end include updater.lua
