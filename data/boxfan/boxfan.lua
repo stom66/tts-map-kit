@@ -5,7 +5,7 @@ function onLoad(save_data)
 		inc          = 0.04,
 		running      = false,
 		repo_name    = "boxfan",
-		repo_version = "20190618b",
+		repo_version = "20190618c",
 		repo_url     = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/data/",
 	}
 	if save_data and save_data ~= "" then
@@ -80,14 +80,20 @@ function updateBtnColors()
 	end
 end
 
+
 --@@include updater.lua
 function checkForUpdates(asset, current_version, repo_url)
-	--simple script to check for updates to this assets lua or xml code
+
 	local updater = {
 		asset   = asset,
 		version = current_version,
 		repo    = repo_url,
-		timeout = 20
+		timeout = 20,
+		loading = {
+			xml = false,
+			lua = false,
+			json = false,
+		}
 	}
 
 	do
@@ -132,76 +138,71 @@ function checkForUpdates(asset, current_version, repo_url)
 		log("!#! Warning! asset "..name.." is a higher version than the repo")
 		return false
 	end
-
-	local function validResponse(response)
-		if not response.text or response.text == "" then
-			return false, 0
-		elseif response.text == "404: Not Found" then
-			return false, 404
-		else
-			return true
-		end
-	end
+	
 
 	--poll the repo and check the version file to see if we need to update
 	--if there's a version mismatch check if we're behind and fetch and apply
-	--the lua and xml before reloading the object
+	--the lua and xml before reloading the object	
+
 	WebRequest.get(updater.url_version, function(version_response)
 		if versionIsNewer(version_response.text) then
-			log("Starting script update...")
-			log("   ...fetching xml and lua version "..version_response.text)
+			log("Updating "..updater.asset.." to version "..version_response.text)
 
+			--set loading flags
+			updater.loading = {
+				xml = true,
+				lua = true,
+				json = true,
+			}
+			updater.cache = {
+				xml, lua, json
+			}
 
-			--get and apply the lua
-			local lua_loaded = false
-			WebRequest.get(updater.url_lua, function(lua_response)
-				if validResponse(lua_response) then
-					log("   ...loaded lua from "..lua_response.url)
-					self.setLuaScript(lua_response.text)
-				else
-					log("   ...no lua found at "..lua_response.url)
-				end
-				lua_loaded = true
-			end)
-
-			--get and apply the xml
-			local xml_loaded = false
-			WebRequest.get(updater.url_xml, function(xml_response)
-				if validResponse(xml_response) then
-					log("   ...loaded xml from "..xml_response.url)
-					self.UI.setXml(xml_response.text)
-				else
-					log("   ...no xml found at "..xml_response.url)
-				end
-				xml_loaded = true
-			end)
-
-			--get and apply the json
-			local json_loaded = false
-			WebRequest.get(updater.url_json, function(json_response)
-				if validResponse(json_response) then
-					log("   ...loaded json from "..json_response.url)
-					local json = JSON.decode(json_response.text)
-					for k,v in pairs(json) do
-						log("   ...updating custom properties to:")
-						log(v)
-						self.setCustomObject(v)
-						break
-					end
-				else
-					log("   ...no json found at "..json_response.url)
-				end
-				json_loaded = true
-			end)
+			for k,_ in pairs(updater.loading) do
+				local url = updater["url_"..k]
+				log("Fetching new "..k.." from "..url)
+				WebRequest.get(url, function(r)
+					updater.cache[k] = r.text
+					updater.loading[k] = false
+				end)
+			end
 
 			--wait for both to complete before reloading
 			Wait.condition(
 				function() 
-					log("   ...updating asset "..updater.asset.." complete!")
-					self.reload() 
+					--begin main asset update script
+						local jsonSpawnObj     = JSON.decode(self.getJSON())
+						log("Converted self.getJSON() to object:")
+						log(jsonSpawnObj)
+						log("type: "..type(jsonSp))
+						--jsonSpawnObj.XmlUI     = updater.cache.xml
+						--jsonSpawnObj.LuaScript = updater.cache.lua
+
+						log("Applying new custom properties")
+						--apply custom properties
+						--for k,v in pairs(JSON.decode(updater.cache.json)) do
+						--	if jsonSpawnObj[k] then
+						--		for kk,_ in pairs(v) do
+						--			jsonSpawnObj[k][kk] = v
+						--		end
+						--	end
+						--end
+						--replace object
+						log("Spawning replacement object!")
+
+						spawnObjectJSON({
+							json = JSON.encode(jsonSpawnObj)
+						})
+						log("Destroying self")
+						self.destruct()
+					--
 				end,
 				function() 
-					return (lua_loaded and xml_loaded and json_loaded) 
+					return (
+						not updater.loading.lua and 
+						not updater.loading.xml and 
+						not updater.loading.json
+					) 
 				end,
 				timeout, --set above
 				function()
