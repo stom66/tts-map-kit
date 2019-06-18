@@ -1,10 +1,12 @@
 function onLoad(save_data)
 	fan = {
-		speed   = 3, -- 3*inc
-		max     = 8,
-		inc     = 0.04,
-		running = false,
-		version = "20190618a"
+		speed        = 3, -- 3*inc
+		max          = 8,
+		inc          = 0.04,
+		running      = false,
+		repo_name    = "boxfan",
+		repo_version = "20190618b",
+		repo_url     = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/data/",
 	}
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
@@ -14,7 +16,7 @@ function onLoad(save_data)
 		Wait.frames(toggleFan, 1)
 		Wait.frames(|| setSpeed(speed), 2)
 	end
-	checkForUpdates("boxfan", fan.version)
+	checkForUpdates(fan.repo_name, fan.repo_version, fan.repo_url)
 end
 function onSave()
 	if fan.running then
@@ -79,12 +81,12 @@ function updateBtnColors()
 end
 
 --@@include updater.lua
-function checkForUpdates(asset, version)
+function checkForUpdates(asset, current_version, repo_url)
 	--simple script to check for updates to this assets lua or xml code
 	local updater = {
 		asset   = asset,
-		version = version,
-		repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/data/",
+		version = current_version,
+		repo    = repo_url,
 		timeout = 20
 	}
 
@@ -131,6 +133,16 @@ function checkForUpdates(asset, version)
 		return false
 	end
 
+	local function validResponse(response)
+		if not response.text or response.text == "" then
+			return false, 0
+		elseif response.text == "404: Not Found" then
+			return false, 404
+		else
+			return true
+		end
+	end
+
 	--poll the repo and check the version file to see if we need to update
 	--if there's a version mismatch check if we're behind and fetch and apply
 	--the lua and xml before reloading the object
@@ -143,7 +155,7 @@ function checkForUpdates(asset, version)
 			--get and apply the lua
 			local lua_loaded = false
 			WebRequest.get(updater.url_lua, function(lua_response)
-				if lua_response.text and lua_response.text ~= "" and lua_response.text ~= "404: Not Found" then
+				if validResponse(lua_response) then
 					log("   ...loaded lua from "..lua_response.url)
 					self.setLuaScript(lua_response.text)
 				else
@@ -155,7 +167,7 @@ function checkForUpdates(asset, version)
 			--get and apply the xml
 			local xml_loaded = false
 			WebRequest.get(updater.url_xml, function(xml_response)
-				if xml_response.text and xml_response.text ~= "" and xml_response.text ~= "404: Not Found" then
+				if validResponse(xml_response) then
 					log("   ...loaded xml from "..xml_response.url)
 					self.UI.setXml(xml_response.text)
 				else
@@ -167,17 +179,15 @@ function checkForUpdates(asset, version)
 			--get and apply the json
 			local json_loaded = false
 			WebRequest.get(updater.url_json, function(json_response)
-				if json_response.text and json_response.text ~= "" and json_response.text ~= "404: Not Found" then
+				if validResponse(json_response) then
 					log("   ...loaded json from "..json_response.url)
 					local json = JSON.decode(json_response.text)
-					log("JSON---")
-					log(json)
-					log("-----")
-					--now
-					--do
-					--custom
-					--properties
-					--updates
+					for k,v in pairs(json) do
+						log("   ...updating custom properties to:")
+						log(v)
+						self.setCustomObject(v)
+						break
+					end
 				else
 					log("   ...no json found at "..json_response.url)
 				end
