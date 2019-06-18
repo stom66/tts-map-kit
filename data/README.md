@@ -1,16 +1,15 @@
-# tts-map-kit/scripts
+# tts-map-kit/data
 
-This directory contains the scripts used by the Map Kit assets. Each asset has a directory named after itself, containing the following files:
+This directory contains the various scripts used by the Map Kit assets. Each asset has a directory named after itself, containing the following files:
 
 * assetname.lua
 * assetname.xml
+* assetname.json
 * version
 
 They may optionally contain the following files as well:
 
 * assetname.min.lua
-
-The asset files themselves may be found in the /assets folder.
 
 ## Updater.lua
 
