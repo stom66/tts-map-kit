@@ -80,30 +80,32 @@ function updateBtnColors()
 	end
 end
 
-
 --@@include updater.lua
-function checkForUpdates(asset, current_version, repo_url)
+function checkForUpdates(asset, current_version, repo_url, timeout)
 
 	local updater = {
 		asset   = asset,
 		version = current_version,
 		repo    = repo_url,
-		timeout = 20,
+		timeout = timeout or 20,
+		cache = {
+			xml, lua, json
+		},
 		loading = {
-			xml = false,
-			lua = false,
-			json = false,
+			xml = true,
+			lua = true,
+			json = true,
 		}
 	}
+	local url_s         = "?"..math.floor(os.time())
+	local url_base 		= updater.repo..updater.asset.."/"
 
-	do
-		local url_s         = "?"..math.floor(os.time())
-		local url_base 		= updater.repo..updater.asset.."/"
-		updater.url_version = url_base.."version"..url_s
-		updater.url_lua     = url_base..updater.asset..".lua"..url_s
-		updater.url_xml     = url_base..updater.asset..".xml"..url_s
-		updater.url_json    = url_base..updater.asset..".json"..url_s
-	end
+	updater.url = {
+		version = url_base.."version"..url_s,
+		lua     = url_base..updater.asset..".lua"..url_s,
+		xml     = url_base..updater.asset..".xml"..url_s,
+		json    = url_base..updater.asset..".json"..url_s
+	}
 
 	local function versionIsNewer(t_ver)
 		local c_ver = updater.version
@@ -139,29 +141,17 @@ function checkForUpdates(asset, current_version, repo_url)
 		return false
 	end
 	
-
 	--poll the repo and check the version file to see if we need to update
 	--if there's a version mismatch check if we're behind and fetch and apply
 	--the lua and xml before reloading the object	
 
-	WebRequest.get(updater.url_version, function(version_response)
+	WebRequest.get(updater.url.version, function(version_response)
 		if versionIsNewer(version_response.text) then
 			log("Updating "..updater.asset.." to version "..version_response.text)
 
-			--set loading flags
-			updater.loading = {
-				xml = true,
-				lua = true,
-				json = true,
-			}
-			updater.cache = {
-				xml, lua, json
-			}
-
 			for k,_ in pairs(updater.loading) do
-				local url = updater["url_"..k]
-				log("Fetching new "..k.." from "..url)
-				WebRequest.get(url, function(r)
+				log("   ...fetching new "..k.." from repo")
+				WebRequest.get(updater.url[k], function(r)
 					updater.cache[k] = r.text
 					updater.loading[k] = false
 				end)
@@ -170,27 +160,23 @@ function checkForUpdates(asset, current_version, repo_url)
 			--wait for both to complete before reloading
 			Wait.condition(
 				function() 
-					--begin main asset update script
+					log("   ...new assets data loaded from repo")
 						local jsonSpawnObj     = JSON.decode(self.getJSON())
-						--jsonSpawnObj.XmlUI     = updater.cache.xml
-						--jsonSpawnObj.LuaScript = updater.cache.lua
-
-						log("Applying new custom properties")
+						jsonSpawnObj.XmlUI     = updater.cache.xml
+						jsonSpawnObj.LuaScript = updater.cache.lua
 						--apply custom properties
-						--for k,v in pairs(JSON.decode(updater.cache.json)) do
-						--	if jsonSpawnObj[k] then
-						--		for kk,_ in pairs(v) do
-						--			jsonSpawnObj[k][kk] = v
-						--		end
-						--	end
-						--end
+						for k,v in pairs(JSON.decode(updater.cache.json)) do
+							if jsonSpawnObj[k] then
+								for kk,vv in pairs(v) do
+									jsonSpawnObj[k][kk] = vv
+								end
+							end
+						end
 						--replace object
-						log("Spawning replacement object!")
-
+						log("   ...destroying self and creating a replacement")
 						spawnObjectJSON({
 							json = JSON.encode(jsonSpawnObj)
 						})
-						log("Destroying self")
 						self.destruct()
 					--
 				end,

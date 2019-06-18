@@ -32,23 +32,31 @@
 -- 		end
 
 --@@include updater.lua
-function checkForUpdates(asset, current_version, repo_url)
-	--simple script to check for updates to this assets lua or xml code
+function checkForUpdates(asset, current_version, repo_url, timeout)
+
 	local updater = {
 		asset   = asset,
 		version = current_version,
 		repo    = repo_url,
-		timeout = 20
+		timeout = timeout or 20,
+		cache = {
+			xml, lua, json
+		},
+		loading = {
+			xml = true,
+			lua = true,
+			json = true,
+		}
 	}
+	local url_s         = "?"..math.floor(os.time())
+	local url_base 		= updater.repo..updater.asset.."/"
 
-	do
-		local url_s         = "?"..math.floor(os.time())
-		local url_base 		= updater.repo..updater.asset.."/"
-		updater.url_version = url_base.."version"..url_s
-		updater.url_lua     = url_base..updater.asset..".lua"..url_s
-		updater.url_xml     = url_base..updater.asset..".xml"..url_s
-		updater.url_json    = url_base..updater.asset..".json"..url_s
-	end
+	updater.url = {
+		version = url_base.."version"..url_s,
+		lua     = url_base..updater.asset..".lua"..url_s,
+		xml     = url_base..updater.asset..".xml"..url_s,
+		json    = url_base..updater.asset..".json"..url_s
+	}
 
 	local function versionIsNewer(t_ver)
 		local c_ver = updater.version
@@ -83,76 +91,52 @@ function checkForUpdates(asset, current_version, repo_url)
 		log("!#! Warning! asset "..name.." is a higher version than the repo")
 		return false
 	end
-
-	local function validResponse(response)
-		if not response.text or response.text == "" then
-			return false, 0
-		elseif response.text == "404: Not Found" then
-			return false, 404
-		else
-			return true
-		end
-	end
-
+	
 	--poll the repo and check the version file to see if we need to update
 	--if there's a version mismatch check if we're behind and fetch and apply
-	--the lua and xml before reloading the object
-	WebRequest.get(updater.url_version, function(version_response)
+	--the lua and xml before reloading the object	
+
+	WebRequest.get(updater.url.version, function(version_response)
 		if versionIsNewer(version_response.text) then
-			log("Starting script update...")
-			log("   ...fetching xml and lua version "..version_response.text)
+			log("Updating "..updater.asset.." to version "..version_response.text)
 
-
-			--get and apply the lua
-			local lua_loaded = false
-			WebRequest.get(updater.url_lua, function(lua_response)
-				if validResponse(lua_response) then
-					log("   ...loaded lua from "..lua_response.url)
-					self.setLuaScript(lua_response.text)
-				else
-					log("   ...no lua found at "..lua_response.url)
-				end
-				lua_loaded = true
-			end)
-
-			--get and apply the xml
-			local xml_loaded = false
-			WebRequest.get(updater.url_xml, function(xml_response)
-				if validResponse(xml_response) then
-					log("   ...loaded xml from "..xml_response.url)
-					self.UI.setXml(xml_response.text)
-				else
-					log("   ...no xml found at "..xml_response.url)
-				end
-				xml_loaded = true
-			end)
-
-			--get and apply the json
-			local json_loaded = false
-			WebRequest.get(updater.url_json, function(json_response)
-				if validResponse(json_response) then
-					log("   ...loaded json from "..json_response.url)
-					local json = JSON.decode(json_response.text)
-					for k,v in pairs(json) do
-						log("   ...updating custom properties to:")
-						log(v)
-						self.setCustomObject(v)
-						break
-					end
-				else
-					log("   ...no json found at "..json_response.url)
-				end
-				json_loaded = true
-			end)
+			for k,_ in pairs(updater.loading) do
+				log("   ...fetching new "..k.." from repo")
+				WebRequest.get(updater.url[k], function(r)
+					updater.cache[k] = r.text
+					updater.loading[k] = false
+				end)
+			end
 
 			--wait for both to complete before reloading
 			Wait.condition(
 				function() 
-					log("   ...updating asset "..updater.asset.." complete!")
-					self.reload() 
+					log("   ...new assets data loaded from repo")
+						local jsonSpawnObj     = JSON.decode(self.getJSON())
+						jsonSpawnObj.XmlUI     = updater.cache.xml
+						jsonSpawnObj.LuaScript = updater.cache.lua
+						--apply custom properties
+						for k,v in pairs(JSON.decode(updater.cache.json)) do
+							if jsonSpawnObj[k] then
+								for kk,vv in pairs(v) do
+									jsonSpawnObj[k][kk] = vv
+								end
+							end
+						end
+						--replace object
+						log("   ...destroying self and creating a replacement")
+						spawnObjectJSON({
+							json = JSON.encode(jsonSpawnObj)
+						})
+						self.destruct()
+					--
 				end,
 				function() 
-					return (lua_loaded and xml_loaded and json_loaded) 
+					return (
+						not updater.loading.lua and 
+						not updater.loading.xml and 
+						not updater.loading.json
+					) 
 				end,
 				timeout, --set above
 				function()
