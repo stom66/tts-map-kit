@@ -172,9 +172,6 @@ function checkForUpdates(asset, current_version, repo_url)
 				function() 
 					--begin main asset update script
 						local jsonSpawnObj     = JSON.decode(self.getJSON())
-						log("Converted self.getJSON() to object:")
-						log(jsonSpawnObj)
-						log("type: "..type(jsonSp))
 						--jsonSpawnObj.XmlUI     = updater.cache.xml
 						--jsonSpawnObj.LuaScript = updater.cache.lua
 
