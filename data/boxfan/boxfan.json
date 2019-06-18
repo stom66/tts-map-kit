@@ -1,9 +1,8 @@
 {
-	"CustomAssetbundle": {
-		"AssetbundleURL": "http://cloud-3.steamusercontent.com/ugc/784104461444132978/910CE58D9BEC4F82B4D08BA3659C1736030A1D25/",
-		"AssetbundleSecondaryURL": "",
-		"MaterialIndex": 2,
-		"TypeIndex": 1,
-		"LoopingEffectIndex": 0
+	"Custom_Assetbundle": {
+		"assetbundle": "http://cloud-3.steamusercontent.com/ugc/784104461444132978/910CE58D9BEC4F82B4D08BA3659C1736030A1D25/",
+		"assetbundle_secondary": "",
+		"material": 2,
+		"type": 1
 	}
 }
