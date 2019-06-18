@@ -36,15 +36,18 @@ function checkForUpdates(asset, version)
 	local updater = {
 		asset   = asset,
 		version = version,
-		repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/",
+		repo    = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/data/",
 		timeout = 20
 	}
 
-	local url_s         = "?"..math.floor(os.time())
-	updater.url_version = updater.repo.."scripts/"..updater.asset.."/version"..url_s
-	updater.url_lua     = updater.repo.."scripts/"..updater.asset.."/"..updater.asset..".lua"..url_s
-	updater.url_xml     = updater.repo.."scripts/"..updater.asset.."/"..updater.asset..".xml"..url_s
-	updater.url_json    = updater.repo.."assets/"..updater.asset.."/custom.json"..url_s
+	do
+		local url_s         = "?"..math.floor(os.time())
+		local url_base 		= updater.repo..updater.asset.."/"
+		updater.url_version = url_base.."version"..url_s
+		updater.url_lua     = url_base..updater.asset..".lua"..url_s
+		updater.url_xml     = url_base..updater.asset..".xml"..url_s
+		updater.url_json    = url_base..updater.asset..".json"..url_s
+	end
 
 	local function versionIsNewer(t_ver)
 		local c_ver = updater.version
