@@ -1,17 +1,4 @@
 {
-	"Name": "Custom_Assetbundle",
-	"Nickname": "Fan",
-	"Description": "This fan provides a WindZone that will interact with other assets. Use the controls on top to toggle it on/off and adjust the strength.",
-	"Locked": false,
-	"Grid": true,
-	"Snap": true,
-	"IgnoreFoW": false,
-	"Autoraise": true,
-	"Sticky": true,
-	"Tooltip": true,
-	"GridProjection": false,
-	"HideWhenFaceDown": false,
-	"Hands": false,
 	"CustomAssetbundle": {
 		"AssetbundleURL": "http://cloud-3.steamusercontent.com/ugc/788606529628900678/CD5BE558556A81150181F8FA0F17D48D3A5EC3F3/",
 		"AssetbundleSecondaryURL": "",
