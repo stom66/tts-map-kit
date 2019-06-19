@@ -5,7 +5,7 @@ function onLoad(save_data)
 		inc          = 0.04,
 		running      = false,
 		repo_name    = "boxfan",
-		repo_version = "20190619a",
+		repo_version = "20190619b",
 		repo_url     = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/data/",
 	}
 	checkForUpdates(fan.repo_name, fan.repo_version, fan.repo_url)
