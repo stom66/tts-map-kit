@@ -5,25 +5,18 @@ function onLoad(save_data)
 		inc          = 0.04,
 		running      = false,
 		repo_name    = "boxfan",
-		repo_version = "20190618d",
+		repo_version = "20190619a",
 		repo_url     = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/data/",
 	}
 	checkForUpdates(fan.repo_name, fan.repo_version, fan.repo_url)
-
 	if save_data and save_data ~= "" then
 		local speed = tonumber(JSON.decode(save_data)[1])
 		if not speed then return false end
 		log("restoring fan to speed "..speed)
 		fan.running = false
 		Wait.frames(toggleFan, 1)
-		Wait.frames(|| setSpeed(speed), 2)
+		Wait.frames(function() setSpeed(speed) end, 2)
 	end
-
-	--check we can access all the required components because for some reason we can get random errors if we dont check. weird.
-	if #self.getChildren() == 0 then self.reload() return end
-	if #self.getChildren()[1].getChildren() < 7 then self.reload() return end
-	if #self.getChildren()[1].getComponents() < 2 then self.reload() return end
-	if #self.getChildren()[1].getChildren()[7].getComponents() < 2 then self.reload() return end
 end
 function onSave()
 	if fan.running then
@@ -43,18 +36,47 @@ function toggleFan()
 	fan.running = not fan.running
 	Wait.frames(updateBtnColors, 1)
 end
+function checkComponentAccess(n)
+	local n = n or 0
+	if n > 5 then
+		log("Failed checking for component access, reloading asset")
+		self.reload()
+		return false
+	end
+	local okay = true
+	if #self.getChildren() == 0 then 
+		okay = false 
+	elseif #self.getChildren()[1].getChildren() < 7 then 
+		okay = false 
+	elseif #self.getChildren()[1].getComponents() < 2 then 
+		okay = false 
+	elseif not self.getChildren()[1].getChildren()[7] then 
+		okay = false 
+	elseif #self.getChildren()[1].getChildren()[7].getComponents() < 2 then 
+		okay = false 
+	end
+	if okay then 
+		return true
+	else
+		Wait.time(function()
+			return checkComponentAccess(n+1)
+		end, 0.2)
+	end
+end
 
 function setSpeed(val)
-	log("changeSpeed("..val..")")
-	fan.speed = tonumber(val)	
-	local actual_strength = fan.speed*fan.inc
-	local anim_speed      = 0.5 + (fan.speed*0.15)
-	local windZone        = self.getChildren()[1].getChildren()[7].getComponents()[2]
-	local animSpeed       = self.getChildren()[1].getComponents()[2]
-	windZone.set("windMain", actual_strength)
-	animSpeed.set("speed", anim_speed)
-	log("Setting fan speed to "..fan.speed.." ("..actual_strength.."), animation speed: "..anim_speed)	
-	updateBtnColors()
+	if checkComponentAccess() then
+		log("changeSpeed("..val..")")
+		fan.speed = tonumber(val)	
+		local actual_strength = fan.speed*fan.inc
+		local anim_speed      = 0.5 + (fan.speed*0.15)
+		local windZone        = self.getChildren()[1].getChildren()[7].getComponents()[2]
+		local animSpeed       = self.getChildren()[1].getComponents()[2]
+		windZone.set("windMain", actual_strength)
+		animSpeed.set("speed", anim_speed)
+		log("Setting fan speed to "..fan.speed.." ("..actual_strength.."), animation speed: "..anim_speed)	
+		updateBtnColors()
+	end
 end
 	function xml_setSpeed(player, val)
 		--called by XML UI
