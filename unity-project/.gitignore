@@ -37,5 +37,6 @@ ehthumbs.db
 # === #
 # TTS #
 # === #
+/[Aa]ssets
 [Aa]ssetBundles
 Assets/_materials/enviro
