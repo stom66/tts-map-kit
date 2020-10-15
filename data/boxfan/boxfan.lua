@@ -37,7 +37,7 @@ function toggleFan()
 	Wait.frames(updateBtnColors, 1)
 end
 function setSpeed(val)
-	--sets the fan speed to be val * faninc.
+	--sets the fan speed to be val * faninc. 
 	if checkComponentAccess() then
 		--test for proper component access to avoid errors with assets that didn't load properly
 		fan.speed = tonumber(val)	
@@ -65,7 +65,7 @@ end
 	end
 
 function checkComponentAccess(n)
-	---checks that all components required for operation are accessible.
+	---checks that all components required for operation are accessible. 
 	local n = n or 0
 	if n > 5 then
 		if fan.debug then log("Failed checking for component access, reloading asset") end
@@ -73,18 +73,18 @@ function checkComponentAccess(n)
 		return false
 	end
 	local okay = true
-	if #self.getChildren() == 0 then
-		okay = false
-	elseif #self.getChildren()[1].getChildren() < 7 then
+	if #self.getChildren() == 0 then 
 		okay = false 
-	elseif #self.getChildren()[1].getComponents() < 2 then
-		okay = false
-	elseif not self.getChildren()[1].getChildren()[7] then
-		okay = false
-	elseif #self.getChildren()[1].getChildren()[7].getComponents() < 2 then
-		okay = false
+	elseif #self.getChildren()[1].getChildren() < 7 then 
+		okay = false 
+	elseif #self.getChildren()[1].getComponents() < 2 then 
+		okay = false 
+	elseif not self.getChildren()[1].getChildren()[7] then 
+		okay = false 
+	elseif #self.getChildren()[1].getChildren()[7].getComponents() < 2 then 
+		okay = false 
 	end
-	if okay then
+	if okay then 
 		return true
 	else
 		Wait.time(function()
