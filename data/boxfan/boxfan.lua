@@ -5,8 +5,9 @@ function onLoad(save_data)
 		inc          = 0.04,
 		running      = false,
 		repo_name    = "boxfan",
-		repo_version = "20190620a",
+		repo_version = "20201015a",
 		repo_url     = "https://raw.githubusercontent.com/stom66/tts-map-kit/master/data/",
+		debug        = false
 	}
 	checkForUpdates(fan.repo_name, fan.repo_version, fan.repo_url)
 	if save_data and save_data ~= "" then
@@ -20,13 +21,13 @@ function onLoad(save_data)
 end
 function onSave()
 	if fan.running then
-		log("Saved fan at speed "..fan.speed)
+		if fan.debug then log("Saved fan at speed "..fan.speed) end
 		return JSON.encode({fan.speed})
 	else return false end
 end
 function toggleFan()
 	--toggles the fan on or off
-	log("Toggling fan: "..tostring(not fan.running))
+	if fan.debug then log("Toggling fan: "..tostring(not fan.running)) end
 	if fan.running then
 		self.AssetBundle.playTriggerEffect(1)
 	else
@@ -36,7 +37,7 @@ function toggleFan()
 	Wait.frames(updateBtnColors, 1)
 end
 function setSpeed(val)
-	--sets the fan speed to be val * faninc. 
+	--sets the fan speed to be val * faninc.
 	if checkComponentAccess() then
 		--test for proper component access to avoid errors with assets that didn't load properly
 		fan.speed = tonumber(val)	
@@ -46,7 +47,7 @@ function setSpeed(val)
 		local animSpeed       = self.getChildren()[1].getComponents()[2]
 		windZone.set("windMain", actual_strength)
 		animSpeed.set("speed", anim_speed)
-		log("Setting fan speed to "..fan.speed.." ("..actual_strength.."), animation speed: "..anim_speed)	
+		if fan.debug then log("Setting fan speed to "..fan.speed.." ("..actual_strength.."), animation speed: "..anim_speed) end
 		updateBtnColors()
 	end
 end
@@ -64,26 +65,26 @@ end
 	end
 
 function checkComponentAccess(n)
-	---checks that all components required for operation are accessible. 
+	---checks that all components required for operation are accessible.
 	local n = n or 0
 	if n > 5 then
-		log("Failed checking for component access, reloading asset")
+		if fan.debug then log("Failed checking for component access, reloading asset") end
 		self.reload()
 		return false
 	end
 	local okay = true
-	if #self.getChildren() == 0 then 
+	if #self.getChildren() == 0 then
+		okay = false
+	elseif #self.getChildren()[1].getChildren() < 7 then
 		okay = false 
-	elseif #self.getChildren()[1].getChildren() < 7 then 
-		okay = false 
-	elseif #self.getChildren()[1].getComponents() < 2 then 
-		okay = false 
-	elseif not self.getChildren()[1].getChildren()[7] then 
-		okay = false 
-	elseif #self.getChildren()[1].getChildren()[7].getComponents() < 2 then 
-		okay = false 
+	elseif #self.getChildren()[1].getComponents() < 2 then
+		okay = false
+	elseif not self.getChildren()[1].getChildren()[7] then
+		okay = false
+	elseif #self.getChildren()[1].getChildren()[7].getComponents() < 2 then
+		okay = false
 	end
-	if okay then 
+	if okay then
 		return true
 	else
 		Wait.time(function()

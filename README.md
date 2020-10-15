@@ -11,6 +11,29 @@ This kit comprises of various components intended for use in the game Tabletop S
 
 ---
 
+### Weather
+##### There's no such thing as bad weather, just the wrong type of clothing
+
+Gives creators the ability to control the weather in their scene. Weather types as follows:
+
+* Sun (nothing)
+* Rain (light, medium, heavy, extreme)
+* Hail (light, medium, heavy, extreme)
+* Lightning (short, medium, long)
+* Snow (light, medium, heavy, extreme)
+* Wind - provided by the boxfan, interacts with Trees 
+* Fog - various heights, low-lying or all-over. Adjustable density, collisions, color (all particle params)
+* Autumn - leaves (light, medium, heavy, extreme)
+* Dust motes (light, medium, heavy, extreme)
+* Fireflies (lit and unlit)
+* Clouds - low lying clouds to float over the table
+* Mist/Fog - (light, medium, heavy, extreme)
+* Tornado - one size destroys all
+
+The weather zone is a single asset that contains all of the above weather animations. Its outline follows a 10x10x10 unit cube and can be scaled accordingly. Each weather type is managed by it's own animation controller which allows a zone to combine any of the possible different weather types.
+
+---
+
 ### Trees
 
 There are several trees available in the kit. Trees consist of the following:
@@ -52,21 +75,6 @@ Available models:
 * Cut rock - important for standing arrangements
 * Rock fall / scree debris
 * Rocky face
-
----
-
-### Weather
-##### There's no such thing as bad weather, just the wrong type of clothing
-
-Gives creators the ability to control the weather in their scene. Weather types as follows:
-
-* Sun (nothing)
-* Rain (drizzle, light, medium, heavy)
-* Thunder and lightning
-* Snow
-* Wind - interacts with Trees
-* Fog - various heights, low-lying or all-over. Adjustable density, collisions, color (all particle params)
-* Clouds - low lying clouds to float over the table
 
 ---
 
