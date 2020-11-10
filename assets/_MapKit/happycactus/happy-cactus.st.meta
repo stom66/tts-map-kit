@@ -1,0 +1,51 @@
+fileFormatVersion: 2
+guid: df2b55d63aafa9041aa69ea39d157048
+SpeedTreeImporter:
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BarrelCactusSkin_LOD0
+    second: {fileID: 2100000, guid: 461d6eb56f07dff459cc3b042b2653d8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BarrelCactusSkin_v2_LOD0
+    second: {fileID: 2100000, guid: f3d8aff0deaa2534fbbdfe7a9e4777fc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BarrelCactusSkin_v4_LOD0
+    second: {fileID: 2100000, guid: 986b8c1ce92aa45429ea0685791c12bc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: happy-cactus_LOD0
+    second: {fileID: 2100000, guid: 9d384b2b6d593ef45aa0a3645c93e8b0, type: 2}
+  serializedVersion: 6
+  mainColor: {r: 1, g: 1, b: 1, a: 1}
+  hueVariation: {r: 1, g: 0.5, b: 0, a: 0.1}
+  alphaTestRef: 0.33
+  bestWindQuality: 4
+  hasBillboard: 0
+  lODSettings:
+  - height: 0.01
+    castShadows: 1
+    receiveShadows: 1
+    useLightProbes: 1
+    reflectionProbeUsage: 1
+    enableBump: 1
+    enableHue: 1
+    enableSubsurface: 1
+    windQuality: 4
+  enableSmoothLODTransition: 1
+  animateCrossFading: 1
+  billboardTransitionCrossFadeWidth: 0.25
+  fadeOutWidth: 0.25
+  scaleFactor: 0.3048
+  materialVersion: 3
+  materialLocation: 1
+  fileIDType: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
