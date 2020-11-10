@@ -1,46 +1,36 @@
-function onLoad()
-	weather = {
-		Rain = {
-			{
-				name = "Off",
-			},
-			{
-				name = "Light Rain",
-				path = self.getChildren()[1].getChildren()[3].getChildren()[5],
-				property = "activeInHierarchy",
-				value_on = true,
-				value_off = false,
-			},
-			{
-				name = "Medium Rain",
-				path = self.getChildren()[1].getChildren()[3].getChildren()[6],
-				property = "activeInHierarchy",
-				value_on = true,
-				value_off = false,
-			},
-			{
-				name = "Heavy Rain",
-				path = self.getChildren()[1].getChildren()[3].getChildren()[7],
-				property = "activeInHierarchy",
-				value_on = true,
-				value_off = false,
-			},
-			{
-				name = "Torrential Rain",
-				path = self.getChildren()[1].getChildren()[3].getChildren()[8],
-				property = "activeInHierarchy",
-				value_on = true,
-				value_off = false,
-			},
-		}
+function onLoad(save_data)
+    weather_zone = {
+        version = 20201104,
+        Outlines = 0,
 	}
-	doTest()
+	debug = true
+    if save_data then
+        if debug then log("Zone: attempting to load save data:") end
+		if debug then log(save_data) end
+		
+        local data = JSON.decode(save_data)
+        if data and data.version and data.version == weather_zone.version then
+            weather_zone = data
+        else
+           if debug then log("There was a version missmatch when loading the saved data for WeatherZone "..self.guid) end
+        end
+    end
 end
 
-function doTest()
-	local rain = self.getChildren()[1].getChildren()[3].getChildren()[7].getVars()
-	log(rain)
-	log("Logging debug ===")
-	log(rain)
-	log("====")
+function onSave()
+   return JSON.encode({weather_zone})
+end
+
+function onObjectTriggerEffect(obj, index)
+    if obj == self then
+        local e = self.AssetBundle.getTriggerEffects()
+        for k,v in ipairs(e) do
+            if v.index == index then
+                local cat = v.name:match("(.*):")
+                weather_zone[cat] = index
+            end
+        end
+    end
+    if debug then log("Updated weather_zone state data:") end
+    if debug then log(weather_zone) end
 end
