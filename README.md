@@ -10,6 +10,19 @@ This kit comprises of various components intended for use in the game Tabletop S
 * Skyboxes
 
 ---
+## Folder structure
+
+* *./AssetBundles*  
+    Bundled assets for use in-game
+
+* *./assets*  
+    Unity project asset files, includes all assetbundle sources and prefabs
+
+* *./data*  
+    Various Lua and XML files that are used by assets. For information on editing see `data/README.md`.
+
+
+---
 
 ### Weather
 ##### There's no such thing as bad weather, just the wrong type of clothing
@@ -17,20 +30,21 @@ This kit comprises of various components intended for use in the game Tabletop S
 Gives creators the ability to control the weather in their scene. Weather types as follows:
 
 * Sun (nothing)
-* Rain (light, medium, heavy, extreme)
-* Hail (light, medium, heavy, extreme)
-* Lightning (short, medium, long)
-* Snow (light, medium, heavy, extreme)
-* Wind - provided by the boxfan, interacts with Trees 
-* Fog - various heights, low-lying or all-over. Adjustable density, collisions, color (all particle params)
 * Autumn - leaves (light, medium, heavy, extreme)
+* Clouds - low lying clouds to float over the table
 * Dust motes (light, medium, heavy, extreme)
 * Fireflies (lit and unlit)
-* Clouds - low lying clouds to float over the table
+* Fog - various heights, low-lying or all-over. Adjustable density, collisions, color (all particle params)
+* Hail (light, medium, heavy, extreme)
+* Lightning (short, medium, long)
 * Mist/Fog - (light, medium, heavy, extreme)
+* Rain (light, medium, heavy, extreme)
+* Snow (light, medium, heavy, extreme)
 * Tornado - one size destroys all
 
 The weather zone is a single asset that contains all of the above weather animations. Its outline follows a 10x10x10 unit cube and can be scaled accordingly. Each weather type is managed by it's own animation controller which allows a zone to combine any of the possible different weather types.
+
+Wind can be provided by the boxfan, and interacts with Trees 
 
 ---
 

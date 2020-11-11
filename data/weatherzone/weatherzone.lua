@@ -4,9 +4,8 @@ function onLoad(save_data)
         Outlines = 0,
 	}
 	debug = true
-    if save_data then
-        if debug then log("Zone: attempting to load save data:") end
-		if debug then log(save_data) end
+    if save_data and save_data ~= "" then
+        if debug then log("Zone: attempting to load save data: "..save_data.."<<") end
 		
         local data = JSON.decode(save_data)
         if data and data.version and data.version == weather_zone.version then

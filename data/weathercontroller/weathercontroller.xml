@@ -1,77 +1,273 @@
 <Defaults>
 	<Panel
-		width    = "1280"
-		height   = "1280"
-		position = "0 0 -11"
-		scale    = "0.25 0.25 0.25"
-		rotation = "0 0 180"
-	 />
-
-	<TableLayout
-		padding              = "0 0 0 0"
-		cellSpacing          = "0"
-		autoCalculateHeight  = "true"
-		useGlobalCellPadding = "true"
-		cellPadding          = "10 10 10 10"
-		cellBackgroundColor  = "rgba(1,1,1,0.4)"
-		rowBackgroundColor   = "clear"
+		visibility = "Admin"
+		width      = "640"
+		height     = "640"
 		/>
-	<Row
-		preferredHeight = "192" />
+	<Panel
+        class      = "OnObject"
+		scale      = "0.5 0.5 0.5"
+		position   = "0 0 -5.5"
+		/>
+	<Panel class                             = "Global"
+		scale                                = "0.5 0.475 0.5"
+		rectAlignment                        = "UpperRight"
+		offsetXY                             = "-220 -60"
+        allowDragging                        = "true"
+        returnToOriginalPositionWhenReleased = "false"
+        padding                              = "20 20 20 20"
+        color                                = "rgba(0.3, 0.3, 0.3, 0.6)"
+		/>
+	<Button
+		tooltipPosition = "Above"
+		fontSize        = "36"
+		fontStyle       = "Bold"
+		/>
+	<Button class     = "toggle"
+		ignoreLayout  = "true"
+		height        = "48"
+		width         = "48"
+		offsetXY      = "-220 -5"
+		rectAlignment = "UpperRight"
+		onClick       = "card01/xml_toggleVisible"
+        allowDragging = "true"
+		textColor     = "#ffffff"
+		colors        = "#333333|#111111|#888888|#000000"
+        returnToOriginalPositionWhenReleased = "false"
+		/>
 
-	<Cell
-		childForceExpandHeight = "true" />
+	<Text
+		fontSize = "36"
+		color    = "#cccccc"
+		/>
+	<TableLayout
+		active="true"
+		cellBackgroundColor = "rgba(0,0,0,0)"
+		/>
+	<Row preferredHeight     = "38"  />
 
-	 <Text
-	 	fontSize="64"
-	 	color="#cccccc" />
-
-	 <Text
-	 	class="large-bold"
-	 	fontSize="72"
-	 	fontStyle="Bold" />
-
-	 <Text
-	 	class="mc"
-	 	alignment="MiddleCenter" />
-	 <Text
-	 	class="mr"
-	 	alignment="MiddleRight" />
-	 <Text
-	 	class="ml"
-	 	alignment="MiddleLeft" />
-
-	<Slider
-		backgroundColor = "#545F67"
-		fillColor       = "#6E8B9F"
-		handleColor     = "#254F6B"
+	<Row class               = "small"
+		 preferredHeight     = "32" />
+		<Text
+			class         = "small:@Text"
+			fontSize      = "20"
+			textAlignment = "MiddleLeft"
+			/>
+		<Button class="small:@Button"
+			tooltipPosition = "Below"
+			fontSize        = "20"
+			/>
+	<Cell 
+		class      = "left_col"
+		columnSpan = "2"
+		/>
+	<Cell 
+		class      = "mid_col"
+		columnSpan = "4"
+		/>
+	<Cell 
+		class      = "right_col"
+		columnSpan = "6"
+		/>
+		<Text 
+			class     = "mid_col:@Text"
+			alignment = "MiddleLeft"
+			fontSize  = "20"
+			/>
+			
+	<Slider 
+		onValueChanged  = "card01/xml_sliderChanged"
+		colors          = "#FFFFFF|#FFFFFF|#C8C8C8|rgba(0.78,0.78,0.78,0.5)"
 		minValue        = "1"
-		onValueChanged  = "xml_input_slider"
-		preferredHeight = "60"
-		preferredWidth  = "360"
-		scale           = "1 1 1"
+		maxValue        = "5"
 		wholeNumbers    = "true"
-		width           = "360"
-		 />
-
+		direction       = "LeftToRight"
+		backgroundColor = "#292E6B"
+		fillColor       = "#003E88"
+		handleColor     = "#0070A4"
+		/>
 </Defaults>
 
-<Panel id="main"
-	active="false">
-	<TableLayout>
-		<Row>
-			<Cell>
-				
-			</Cell>
-			<Cell>
 
+
+<Button id="toggle" class="toggle" active="false">N</Button>
+<Panel id="main" class="OnObject">
+	<TableLayout>
+		<Row preferredHeight="44">
+			<Cell columnSpan="2">
+				<Button onClick="card01/xml_refresh">
+					↻
+				</Button>
+			</Cell>
+			<Cell columnSpan="2">
+				<Button onClick="card01/xml_prev">
+					◀
+				</Button>
+			</Cell>
+			<Cell columnSpan="6">
+				<Text id="xml_obj_name">
+					loading
+				</Text>
+			</Cell>
+			<Cell columnSpan="2">
+				<Button onClick="card01/xml_next">
+					▶
+				</Button>
 			</Cell>
 		</Row>
-	</TableLayout>	
-</Panel>
-<Panel id="notassigned"
-	active="true">
-	<Text class="large-bold">
-		This controller is not currently assigned to an object. Add an object GUID to the description field to have it assigned.
-	</Text>	
+		<Row class="small"></Row>
+
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Outlines">Outlines: On</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Outlines" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Rain">Rain: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Rain" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Downpour">Downpour: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Downpour" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Hail">Hail: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Hail" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Snow">Snow: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Snow" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Blizzard">Blizzard: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Blizzard" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Clouds">Clouds: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Clouds" maxValue = "4" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Mist">Mist: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Mist" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Duststorm">Duststorm: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Duststorm" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Tornado">Tornado: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Tornado" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Lightning">Lightning: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Lightning" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Autumn">Autumn: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Autumn" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Flies">Flies: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Flies" />
+			</Cell>
+		</Row>
+		<Row class="row_slider">
+			<Cell class="left_col"></Cell>
+			<Cell class="mid_col">
+				<Text id="text_Butterflies">Butterflies: Off</Text>
+			</Cell>
+			<Cell class="right_col">
+				<Slider onValueChanged="card01/xml_sliderChanged" id="slider_Butterflies" />
+			</Cell>
+		</Row>
+
+
+
+
+		<Row class="small">
+			<Cell columnSpan="8"></Cell>
+			<Cell>
+				<Text id="xml_current_index">
+					xxx
+				</Text>
+			</Cell>
+			<Cell>
+				<Button 
+					onClick = "card01/xml_pingObject"
+					tooltip = "Ping the object">
+					P
+				</Button>
+			</Cell>
+			<Cell>
+				<Button
+					onClick = "card01/xml_cameraToObject"
+					tooltip = "Center your camera on the object">
+					C
+				</Button>
+			</Cell>
+		</Row>
+	</TableLayout>
 </Panel>
